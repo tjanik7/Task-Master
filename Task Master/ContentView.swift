@@ -5,27 +5,34 @@
 //  Created by Ty Janik on 5/2/26.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-//    @Query private var tasks: [Task] // TODO: Implement storage
+    //    @Query private var tasks: [Task] // TODO: Implement storage
     @State private var tasks: [Task] = []
-    
+
     @State private var showForm = false
 
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(tasks) { task in
+                ForEach(tasks.sorted { $0.dueDate < $1.dueDate }) { task in
                     NavigationLink {
-                        Text("Task at \(task.dueDate, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        Text(
+                            "Task at \(task.dueDate, format: Date.FormatStyle(date: .numeric, time: .standard))"
+                        )
                     } label: {
                         HStack {
                             Text(task.name)
                             Spacer()
-                            Text(task.dueDate.formatted(date: .long, time: .omitted))
+                            Text(
+                                task.dueDate.formatted(
+                                    date: .long,
+                                    time: .omitted
+                                )
+                            )
                         }
                     }
                 }
@@ -61,5 +68,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-//        .modelContainer(for: Task.self, inMemory: true) // NEEDED WHEN PERSISTING DATA
+    //        .modelContainer(for: Task.self, inMemory: true) // NEEDED WHEN PERSISTING DATA
 }
