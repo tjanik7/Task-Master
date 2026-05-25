@@ -21,6 +21,17 @@ struct NewTaskView: View {
             }
             TextField("Name", text: $newTask.name)
             DatePicker("Due date", selection: $newTask.dueDate)
+            LabeledContent("Every") {
+                TextField("Every", value: $newTask.frequency.value, format: .number)
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.trailing)
+            }
+            Picker("Units", selection: $newTask.frequency.unit) {
+                ForEach(FrequencyUnit.allCases) { freq in
+                    Text(freq.rawValue.capitalized)
+                        .tag(freq)
+                }
+            }
         }
     }
 }
