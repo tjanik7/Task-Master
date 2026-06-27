@@ -10,48 +10,21 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var path = [String]()
+    
     //    @Query private var tasks: [Task] // TODO: Implement storage
     @State private var tasks: [Task] = []
 
     @State private var showForm = false
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(tasks.sorted { $0.dueDate < $1.dueDate }) { task in
-                    NavigationLink {
-                        TaskFormView(showForm: $showForm, tasks: $tasks, task: task)
-                    } label: {
-                        HStack {
-                            Text(task.name)
-                            Spacer()
-                            Text(
-                                task.dueDate.formatted(
-                                    date: .long,
-                                    time: .omitted
-                                )
-                            )
-                        }
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        NavigationStack {
+            List(tasks, id: \.self) { task in
+                NavigationLink(task, value: task)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button {
-                        showForm = true
-                    } label: {
-                        Label("add", systemImage: "plus")
-                    }.sheet(isPresented: $showForm) {
-                        TaskFormView(showForm: $showForm, tasks: $tasks)
-                    }
-                }
+            .navigationDestination(for: String.self) { selectedTask in
+                TaskFormView(showForm: $showForm, tasks: $tasks, task: task)
             }
-        } detail: {
-            Text("Select an item")
         }
     }
 
