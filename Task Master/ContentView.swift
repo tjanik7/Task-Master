@@ -19,22 +19,44 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            List(tasks, id: \.self) { task in
-                NavigationLink(task, value: task)
+            Button("+") {
+                withAnimation(.spring(duration: 0.3)) {
+                    showForm = true
+                }
             }
-            .navigationDestination(for: String.self) { selectedTask in
-                TaskFormView(showForm: $showForm, tasks: $tasks, task: task)
+            List(tasks) { task in
+                NavigationLink(task.name, value: task)
             }
+            .navigationDestination(for: Task.self) { selectedTask in
+                TaskFormView(task: selectedTask, onUpdate: updateTask)
+            }
+        }
+        .sheet(isPresented: $showForm) {
+            TaskFormView(onCreate: createTask)
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(tasks[index])
+    private func dismissOverlay() {
+        withAnimation(.easeOut(duration: 0.2)) {
+            showForm = false
+            print("Dismissing")
+        }
+    }
+    
+    private func createTask(task: Task) {
+        tasks.append(task)
+        dismissOverlay()
+    }
+    
+    private func updateTask(task: Task) {
+        for index in tasks.indices {
+            if tasks[index].id == task.id {
+                tasks[index] = task
+                print("Updated task")
             }
         }
     }
+    
 }
 
 #Preview {

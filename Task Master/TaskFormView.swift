@@ -8,27 +8,26 @@
 import SwiftUI
 
 struct TaskFormView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var newTask: Task
-    @Binding var tasks: [Task]
-    @Binding var showForm: Bool
+    let onSave: (Task) -> Void
     
     private let isEditMode: Bool
     
     // Init in create mode
-    init(showForm: Binding<Bool>, tasks: Binding<[Task]>) {
+    init(onCreate: @escaping (Task) -> Void) {
         isEditMode = false
         newTask = Task()
-        self._showForm = showForm
-        self._tasks = tasks
+        self.onSave = onCreate
         print("create")
     }
     
     // Init in edit mode
-    init(showForm: Binding<Bool>, tasks: Binding<[Task]>, task: Task) {
+    init(task: Task, onUpdate: @escaping (Task) -> Void) {
         isEditMode = true
         newTask = task
-        self._showForm = showForm
-        self._tasks = tasks
+        self.onSave = onUpdate
         print("edit")
     }
 
@@ -36,9 +35,11 @@ struct TaskFormView: View {
 
         Form {
             Button("Save") {
-                // TODO: Should this just be a callback defined in parent?
-                tasks.append(newTask)
-                showForm = false
+                onSave(newTask)
+                
+                if (isEditMode) {
+                    dismiss()
+                }
             }
             TextField("Name", text: $newTask.name)
             DatePicker("Due date", selection: $newTask.dueDate)

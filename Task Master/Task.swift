@@ -23,7 +23,8 @@ struct Frequency: Codable {
 }
 
 @Model
-final class Task {
+final class Task: Identifiable {
+    var id = UUID()
     var name: String
     var dueDate: Date
     var frequency: Frequency
