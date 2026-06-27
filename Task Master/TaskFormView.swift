@@ -7,15 +7,36 @@
 
 import SwiftUI
 
-struct NewTaskView: View {
-    @State private var newTask = Task()
+struct TaskFormView: View {
+    @State private var newTask: Task
     @Binding var tasks: [Task]
     @Binding var showForm: Bool
+    
+    private let isEditMode: Bool
+    
+    // Init in create mode
+    init(showForm: Binding<Bool>, tasks: Binding<[Task]>) {
+        isEditMode = false
+        newTask = Task()
+        self._showForm = showForm
+        self._tasks = tasks
+        print("create")
+    }
+    
+    // Init in edit mode
+    init(showForm: Binding<Bool>, tasks: Binding<[Task]>, task: Task) {
+        isEditMode = true
+        newTask = task
+        self._showForm = showForm
+        self._tasks = tasks
+        print("edit")
+    }
 
     var body: some View {
 
         Form {
             Button("Save") {
+                // TODO: Should this just be a callback defined in parent?
                 tasks.append(newTask)
                 showForm = false
             }

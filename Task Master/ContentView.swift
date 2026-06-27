@@ -20,9 +20,7 @@ struct ContentView: View {
             List {
                 ForEach(tasks.sorted { $0.dueDate < $1.dueDate }) { task in
                     NavigationLink {
-                        Text(
-                            "Task at \(task.dueDate, format: Date.FormatStyle(date: .numeric, time: .standard))"
-                        )
+                        TaskFormView(showForm: $showForm, tasks: $tasks, task: task)
                     } label: {
                         HStack {
                             Text(task.name)
@@ -48,7 +46,7 @@ struct ContentView: View {
                     } label: {
                         Label("add", systemImage: "plus")
                     }.sheet(isPresented: $showForm) {
-                        NewTaskView(tasks: $tasks, showForm: $showForm)
+                        TaskFormView(showForm: $showForm, tasks: $tasks)
                     }
                 }
             }
