@@ -13,7 +13,17 @@ struct ContentView: View {
     @State private var path = [String]()
     
     //    @Query private var tasks: [Task] // TODO: Implement storage
-    @State private var tasks: [Task] = []
+    
+    // Mocked data
+    @State private var tasks: [Task] = [
+        Task(name: "Dishes", dueDate: Date.now),
+        Task(name: "Laundry", dueDate: Calendar.current.date(byAdding: .day, value: 7, to: Date.now)!),
+        Task(name: "Vacuum", dueDate: Calendar.current.date(byAdding: .day, value: 2, to: Date.now)!)
+    ]
+    
+    private var sortedTasks: [Task] {
+        tasks.sorted { $0.dueDate < $1.dueDate }
+    }
 
     @State private var showForm = false
 
@@ -24,8 +34,19 @@ struct ContentView: View {
                     showForm = true
                 }
             }
-            List(tasks) { task in
-                NavigationLink(task.name, value: task)
+            List(sortedTasks) { task in
+                NavigationLink(value: task) {
+                    HStack {
+                        Text(task.name)
+                            .font(.headline)
+                        
+                        Spacer()
+                        
+                        Text(task.dueDate.formatted())
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
             .navigationDestination(for: Task.self) { selectedTask in
                 TaskFormView(task: selectedTask, onUpdate: updateTask)
