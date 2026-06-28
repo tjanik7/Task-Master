@@ -9,12 +9,12 @@ import SwiftUI
 
 struct TaskFormView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var newTask: Task
     let onSave: (Task) -> Void
-    
+
     private let isEditMode: Bool
-    
+
     // Init in create mode
     init(onCreate: @escaping (Task) -> Void) {
         isEditMode = false
@@ -22,7 +22,7 @@ struct TaskFormView: View {
         self.onSave = onCreate
         print("create")
     }
-    
+
     // Init in edit mode
     init(task: Task, onUpdate: @escaping (Task) -> Void) {
         isEditMode = true
@@ -32,28 +32,41 @@ struct TaskFormView: View {
     }
 
     var body: some View {
-        
+
         Form {
             Button("Save") {
                 onSave(newTask)
-                
-                if (isEditMode) {
+
+                if isEditMode {
                     dismiss()
                 }
             }
+
             TextField("Name", text: $newTask.name)
+
             DatePicker("Due date", selection: $newTask.dueDate)
-            LabeledContent("Every") {
-                TextField("Every", value: $newTask.frequency.value, format: .number)
+
+            Toggle("Repeat", isOn: $newTask.isRepeating)
+
+            if newTask.isRepeating {
+                LabeledContent("Every") {
+                    TextField(
+                        "Every",
+                        value: $newTask.frequency.value,
+                        format: .number
+                    )
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.trailing)
-            }
-            Picker("Units", selection: $newTask.frequency.unit) {
-                ForEach(FrequencyUnit.allCases) { freq in
-                    Text(freq.rawValue.capitalized)
-                        .tag(freq)
+                }
+
+                Picker("Units", selection: $newTask.frequency.unit) {
+                    ForEach(FrequencyUnit.allCases) { freq in
+                        Text(freq.rawValue.capitalized)
+                            .tag(freq)
+                    }
                 }
             }
+
         }
     }
 }
