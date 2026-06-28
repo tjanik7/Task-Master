@@ -27,17 +27,20 @@ final class Task: Identifiable {
     var id = UUID()
     var name: String
     var dueDate: Date
+    var isRepeating: Bool // Ignore frequency property if false
     var frequency: Frequency
 
     init() {
         self.name = ""
         self.dueDate = Date()
-        self.frequency = Frequency()
+        self.isRepeating = false
+        self.frequency = Frequency(value: 1, unit: .Days)
     }
 
     init(name: String, dueDate: Date) {
         self.name = name
         self.dueDate = dueDate
+        self.isRepeating = false
         self.frequency = Frequency()
     }
     
