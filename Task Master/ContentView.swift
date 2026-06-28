@@ -10,60 +10,53 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var path = [String]()
+    
     //    @Query private var tasks: [Task] // TODO: Implement storage
     @State private var tasks: [Task] = []
 
     @State private var showForm = false
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(tasks.sorted { $0.dueDate < $1.dueDate }) { task in
-                    NavigationLink {
-                        Text(
-                            "Task at \(task.dueDate, format: Date.FormatStyle(date: .numeric, time: .standard))"
-                        )
-                    } label: {
-                        HStack {
-                            Text(task.name)
-                            Spacer()
-                            Text(
-                                task.dueDate.formatted(
-                                    date: .long,
-                                    time: .omitted
-                                )
-                            )
-                        }
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button {
-                        showForm = true
-                    } label: {
-                        Label("add", systemImage: "plus")
-                    }.sheet(isPresented: $showForm) {
-                        NewTaskView(tasks: $tasks, showForm: $showForm)
-                    }
+        NavigationStack {
+            Button("+") {
+                withAnimation(.spring(duration: 0.3)) {
+                    showForm = true
                 }
             }
-        } detail: {
-            Text("Select an item")
+            List(tasks) { task in
+                NavigationLink(task.name, value: task)
+            }
+            .navigationDestination(for: Task.self) { selectedTask in
+                TaskFormView(task: selectedTask, onUpdate: updateTask)
+            }
+        }
+        .sheet(isPresented: $showForm) {
+            TaskFormView(onCreate: createTask)
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(tasks[index])
+    private func dismissOverlay() {
+        withAnimation(.easeOut(duration: 0.2)) {
+            showForm = false
+            print("Dismissing")
+        }
+    }
+    
+    private func createTask(task: Task) {
+        tasks.append(task)
+        dismissOverlay()
+    }
+    
+    private func updateTask(task: Task) {
+        for index in tasks.indices {
+            if tasks[index].id == task.id {
+                tasks[index] = task
+                print("Updated task")
             }
         }
     }
+    
 }
 
 #Preview {
