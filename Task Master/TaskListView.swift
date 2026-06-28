@@ -20,6 +20,7 @@ struct TaskListView: View {
         Text(headerText)
         List(sortedTasks) { task in
             NavigationLink(value: task) {
+                // Format task for row display
                 HStack {
                     Text(task.name)
                         .font(.headline)
