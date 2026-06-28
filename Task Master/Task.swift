@@ -40,4 +40,35 @@ final class Task: Identifiable {
         self.dueDate = dueDate
         self.frequency = Frequency()
     }
+    
+    func isDueToday() -> Bool {
+        Calendar.current.isDate(dueDate, inSameDayAs: Date.now)
+    }
+    
+    func isDueThisWeek() -> Bool {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents(
+            [.day],
+            from: Date.now,
+            to: dueDate
+        )
+
+        if let days = components.day {
+            return days <= 7
+        }
+
+        return false
+    }
+    
+    // Tasks with day delta > 7
+    func isDueLater() -> Bool {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day], from: Date.now, to: dueDate)
+
+        if let days = components.day {
+            return days > 7
+        }
+
+        return false
+    }
 }
