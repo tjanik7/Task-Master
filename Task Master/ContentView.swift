@@ -40,56 +40,26 @@ struct ContentView: View {
                 value: 31,
                 to: Date.now
             )!
-        )
+        ),
     ]
-
-    private var sortedTasks: [Task] {
-        tasks.sorted { $0.dueDate < $1.dueDate }
-    }
-    
-    private func isToday(d: Date) -> Bool {
-        Calendar.current.isDate(d, inSameDayAs: Date.now)
-    }
 
     private var tasksDueToday: [Task] {
         tasks.filter { task in
-            isToday(d: task.dueDate)
+            task.isDueToday()
         }
     }
-    
-    private func isThisWeek(earlier: Date, later: Date) -> Bool {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.day], from: earlier, to: later)
-        
-        if let days = components.day {
-            return days <= 7
-        }
-        
-        return false
-    }
-    
+
     // Tasks with day delta > 1 and <= 7
     private var tasksDueThisWeek: [Task] {
         tasks.filter { task in
-            isThisWeek(earlier: Date.now, later: task.dueDate) && !isToday(d: task.dueDate)
+            task.isDueThisWeek()
+            && !task.isDueToday()
         }
     }
-    
-    // Tasks with day delta > 7
-    private func isLater(d: Date) -> Bool {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.day], from: Date.now, to: d)
-        
-        if let days = components.day {
-            return days > 7
-        }
-        
-        return false
-    }
-    
+
     private var tasksDueLater: [Task] {
         tasks.filter { task in
-            isLater(d: task.dueDate)
+            task.isDueLater()
         }
     }
 
@@ -102,66 +72,24 @@ struct ContentView: View {
                     showForm = true
                 }
             }
-            
-            Text("Due Today")
-            List(tasksDueToday) { task in
-                NavigationLink(value: task) {
-                    HStack {
-                        Text(task.name)
-                            .font(.headline)
 
-                        Spacer()
+            TaskListView(
+                headerText: "Due Today",
+                tasks: tasksDueToday,
+                updateTask: updateTask
+            )
 
-                        Text(task.dueDate.formatted())
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .navigationDestination(for: Task.self) { selectedTask in
-                TaskFormView(task: selectedTask, onUpdate: updateTask)
-            }
-            
-            Text("Due This Week")
-            List(tasksDueThisWeek) { task in
-                NavigationLink(value: task) {
-                    HStack {
-                        Text(task.name)
-                            .font(.headline)
+            TaskListView(
+                headerText: "Due This Week",
+                tasks: tasksDueThisWeek,
+                updateTask: updateTask
+            )
 
-                        Spacer()
-
-                        Text(task.dueDate.formatted())
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .navigationDestination(for: Task.self) { selectedTask in
-                TaskFormView(task: selectedTask, onUpdate: updateTask)
-            }
-            
-            Text("Due Later")
-            List(tasksDueLater) { task in
-                NavigationLink(value: task) {
-                    HStack {
-                        Text(task.name)
-                            .font(.headline)
-
-                        Spacer()
-
-                        Text(task.dueDate.formatted())
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .navigationDestination(for: Task.self) { selectedTask in
-                TaskFormView(task: selectedTask, onUpdate: updateTask)
-            }
-            .navigationDestination(for: Task.self) { selectedTask in
-                TaskFormView(task: selectedTask, onUpdate: updateTask)
-            }
+            TaskListView(
+                headerText: "Due Later",
+                tasks: tasksDueLater,
+                updateTask: updateTask
+            )
         }
         .sheet(isPresented: $showForm) {
             TaskFormView(onCreate: createTask)
