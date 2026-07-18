@@ -9,11 +9,11 @@ import SwiftUI
 
 struct TaskListView: View {
     let tasks: [Task]
-    
+
     private var sortedTasks: [Task] {
         tasks.sorted { $0.dueDate < $1.dueDate }
     }
-    
+
     var body: some View {
         ForEach(sortedTasks) { task in
             NavigationLink(value: task) {
