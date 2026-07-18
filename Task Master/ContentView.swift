@@ -53,7 +53,7 @@ struct ContentView: View {
     private var tasksDueThisWeek: [Task] {
         tasks.filter { task in
             task.isDueThisWeek()
-            && !task.isDueToday()
+                && !task.isDueToday()
         }
     }
 
@@ -67,29 +67,42 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            Button("+") {
-                withAnimation(.spring(duration: 0.3)) {
-                    showForm = true
+            VStack {
+                List {
+                    Section(header: Text("Due Today")) {
+                        TaskListView(
+                            tasks: tasksDueToday,
+                        )
+                    }
+
+                    Section(header: Text("Due This Week")) {
+                        TaskListView(
+                            tasks: tasksDueThisWeek,
+                        )
+                    }
+
+                    Section("Due Later") {
+                        TaskListView(
+                            tasks: tasksDueLater,
+                        )
+                    }
+                }
+                .navigationDestination(for: Task.self) { selectedTask in
+                    TaskFormView(task: selectedTask, onUpdate: updateTask)
                 }
             }
-
-            TaskListView(
-                headerText: "Due Today",
-                tasks: tasksDueToday,
-                updateTask: updateTask
-            )
-
-            TaskListView(
-                headerText: "Due This Week",
-                tasks: tasksDueThisWeek,
-                updateTask: updateTask
-            )
-
-            TaskListView(
-                headerText: "Due Later",
-                tasks: tasksDueLater,
-                updateTask: updateTask
-            )
+            .navigationTitle("Task Master")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        withAnimation(.spring(duration: 0.3)) {
+                            showForm = true
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
         }
         .sheet(isPresented: $showForm) {
             TaskFormView(onCreate: createTask)

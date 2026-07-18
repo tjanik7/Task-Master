@@ -8,17 +8,14 @@
 import SwiftUI
 
 struct TaskListView: View {
-    let headerText: String
     let tasks: [Task]
-    let updateTask: (Task) -> Void
-    
+
     private var sortedTasks: [Task] {
         tasks.sorted { $0.dueDate < $1.dueDate }
     }
-    
+
     var body: some View {
-        Text(headerText)
-        List(sortedTasks) { task in
+        ForEach(sortedTasks) { task in
             NavigationLink(value: task) {
                 // Format task for row display
                 HStack {
@@ -32,9 +29,6 @@ struct TaskListView: View {
                         .foregroundColor(.secondary)
                 }
             }
-        }
-        .navigationDestination(for: Task.self) { selectedTask in
-            TaskFormView(task: selectedTask, onUpdate: updateTask)
         }
     }
 }
